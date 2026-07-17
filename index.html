@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alfie - My Computer</title>
+<title>¥ My Computer</title>
 <style>
   :root{
     --glass-top: rgba(210,235,255,0.55);
@@ -203,15 +203,15 @@
     </div>
     <div class="content about-grid">
       <div class="avatar-box" id="avatarBox">
-    <img src="IMG_3180.jpeg" alt="Alfie's Profile" style="width: 100%; height: 100%; object-fit: cover;">
+    <img src="IMG_3180.jpeg" alt="¥'s Profile" style="width: 100%; height: 100%; object-fit: cover;">
 </div>
       <div class="about-text">
-        <h2>Alfie</h2>
+        <h2>¥</h2>
         <p>UK-based. Self-teaching. Likes Old Tech.</p>
         <table class="props-table">
-          <tr><td>Computer</td><td>ALFIE-PC</td></tr>
-          <tr><td>Rating</td><td>unrated</td></tr>
-          <tr><td>Status</td><td>self-teaching</td></tr>
+          <tr><td>Computer</td><td>¥-PC</td></tr>
+          <tr><td>Rating</td><td>Unrated</td></tr>
+          <tr><td>Status</td><td>Self-Teaching</td></tr>
           <tr><td>Location</td><td>UK</td></tr>
         </table>
       </div>
@@ -251,18 +251,18 @@
     <div class="content cmdwrap">
       <div class="cmd-screen">
         <div class="cmd-out" id="cmdOut">Microsoft Windows [Version 6.0.6000]
-Copyright (c) Alfie Corporation. All rights reserved.
+Copyright (c) ¥ Corporation. All rights reserved.
 
-Type a command. Try: help, whoami, dir, ver</div>
+All made for fun!</div>
         <div class="cmd-row">
-          <span>C:\Users\Alfie&gt;</span>
+          <span>C:\Users\¥&gt;</span>
           <input id="cmd" type="text" autocomplete="off" spellcheck="false" aria-label="command input">
         </div>
       </div>
     </div>
   </div>
 
-  <footer>Alfie OS &middot; Aero Glass Edition &middot; not affiliated with Microsoft, obviously</footer>
+  <footer>¥ OS &middot; Aero Glass Edition &middot; not affiliated with Microsoft, obviously</footer>
 </div>
 
 <div class="taskbar">
@@ -306,16 +306,16 @@ Type a command. Try: help, whoami, dir, ver</div>
   const cmdInput = document.getElementById('cmd');
   const responses = {
     help: "commands: whoami, dir, ver, exit",
-    whoami: "alfie-pc\\alfie",
-    dir: " Directory of C:\\Users\\Alfie\n\n dreams.txt\n tokyo_plan.docx\n firmware_backups\\\n regrets.log",
-    ver: "Alfie OS [Version 1.0.0 Aero Glass Edition]",
+    whoami: "¥-pc\\¥",
+    dir: " Directory of C:\\Users\\¥\n\n firmware_backups",
+    ver: "¥ OS [Version 1.0.0 Aero Glass Edition]",
     exit: "The command prompt cannot be exited. There was never a session to begin with."
   };
   cmdInput.addEventListener('keydown', (e)=>{
     if(e.key !== 'Enter') return;
     const raw = cmdInput.value.trim();
     const key = raw.toLowerCase();
-    cmdOut.textContent += "\nC:\\Users\\Alfie> " + raw + "\n" + (responses[key] || ("'" + raw + "' is not recognized as an internal or external command."));
+    cmdOut.textContent += "\nC:\\Users\\¥> " + raw + "\n" + (responses[key] || ("'" + raw + "' is not recognized as an internal or external command."));
     cmdInput.value = '';
   });
 </script>
