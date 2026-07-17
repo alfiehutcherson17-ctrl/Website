@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alfie - My Computer</title>
+<style>
+  :root{
+    --glass-top: rgba(210,235,255,0.55);
+    --glass-bottom: rgba(120,175,235,0.35);
+    --glass-border: rgba(255,255,255,0.8);
+    --titlebar-blue: linear-gradient(180deg, #dff0ff 0%, #a9d0f5 15%, #6fa8e0 55%, #3d7dc9 100%);
+    --text-dark:#0a2138;
+    --text-body:#1c2b3a;
+    --taskbar: linear-gradient(180deg, #2a5a9c 0%, #1c3f7a 50%, #0d2456 100%);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color:var(--text-body);
+    min-height:100vh;
+    overflow-x:hidden;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(180,220,255,0.5), transparent 55%),
+      radial-gradient(ellipse at 85% 15%, rgba(140,200,255,0.4), transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(10,40,90,0.6), transparent 60%),
+      linear-gradient(160deg, #bfe0ff 0%, #6fa3d8 30%, #2f5f9e 60%, #0b1f45 100%);
+    padding:36px 16px 100px;
+  }
+
+  /* faux aurora swirl layer */
+  .aurora{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(closest-side, rgba(255,255,255,0.35), transparent) 15% 20%/60% 60% no-repeat,
+      radial-gradient(closest-side, rgba(150,210,255,0.35), transparent) 80% 10%/70% 70% no-repeat,
+      radial-gradient(closest-side, rgba(20,70,140,0.5), transparent) 60% 90%/80% 80% no-repeat;
+    filter:blur(30px);
+  }
+
+  .desktop{max-width:900px; margin:0 auto; position:relative; z-index:1;}
+
+  .window{
+    border-radius:10px;
+    margin-bottom:26px;
+    box-shadow:0 18px 40px rgba(5,20,50,0.45), 0 2px 0 rgba(255,255,255,0.4) inset;
+    border:1px solid rgba(255,255,255,0.6);
+    overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(235,244,255,0.88));
+    backdrop-filter:blur(6px);
+  }
+  .titlebar{
+    background:var(--titlebar-blue);
+    padding:9px 10px 9px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid rgba(255,255,255,0.6);
+    box-shadow:0 1px 0 rgba(255,255,255,0.9) inset;
+  }
+  .titlebar .title{
+    font-size:13px;
+    font-weight:700;
+    color:var(--text-dark);
+    text-shadow:0 1px 0 rgba(255,255,255,0.6);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .titlebar .title .icon{
+    width:16px;height:16px;border-radius:3px;
+    background:linear-gradient(135deg,#ffd35c,#ff9d3d);
+    box-shadow:0 0 0 1px rgba(0,0,0,0.15) inset;
+    display:inline-block;
+  }
+  .winbtns{display:flex; gap:6px;}
+  .winbtn{
+    width:22px;height:20px;
+    border-radius:4px;
+    border:1px solid rgba(255,255,255,0.7);
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; color:#fff;
+    text-shadow:0 1px 1px rgba(0,0,0,0.3);
+  }
+  .winbtn.min{background:linear-gradient(180deg,#8fc7ee,#4e93cf);}
+  .winbtn.max{background:linear-gradient(180deg,#8fc7ee,#4e93cf);}
+  .winbtn.close{background:linear-gradient(180deg,#ff9a8f,#e6483a);}
+
+  .content{padding:20px 22px;}
+  .content h2{
+    font-size:15px; margin:0 0 10px; color:var(--text-dark);
+  }
+  .content p{font-size:13.5px; line-height:1.55; margin:0 0 10px;}
+
+  /* about window */
+  .about-grid{display:flex; gap:20px; flex-wrap:wrap;}
+  .avatar-box{
+    flex:0 0 auto;
+    width:120px; height:120px;
+    border-radius:8px;
+    background:linear-gradient(135deg,#eaf5ff,#c5def5);
+    border:1px solid rgba(255,255,255,0.8);
+    box-shadow:0 4px 10px rgba(20,60,110,0.25) inset, 0 3px 8px rgba(0,0,0,0.2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; color:#4a6a8a; text-align:center; padding:6px;
+    overflow:hidden;
+  }
+  .avatar-box img{width:100%; height:100%; object-fit:cover; border-radius:6px;}
+  .about-text{flex:1 1 240px; min-width:220px;}
+
+  .props-table{width:100%; border-collapse:collapse; font-size:13px; margin-top:6px;}
+  .props-table td{padding:5px 8px; border-bottom:1px solid rgba(150,180,210,0.4);}
+  .props-table td:first-child{color:#3c5a7c; font-weight:600; width:110px;}
+
+  /* photo gallery window */
+  .gallery-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:12px;}
+  .photo-tile{
+    border-radius:6px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.8);
+    box-shadow:0 3px 8px rgba(0,0,0,0.2);
+    background:#eef6ff;
+  }
+  .photo-tile img{display:block; width:100%; height:130px; object-fit:cover;}
+  .photo-caption{font-size:11px; padding:4px 6px; color:#3c5a7c;}
+  .gallery-empty{
+    font-size:13px; color:#5a7a9a; padding:14px; text-align:center;
+    border:1px dashed rgba(90,130,170,0.5); border-radius:6px;
+  }
+
+  /* links window */
+  .link-list{list-style:none; margin:0; padding:0;}
+  .link-list li{margin-bottom:8px;}
+  .link-btn{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px;
+    border-radius:6px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(220,238,255,0.8));
+    border:1px solid rgba(255,255,255,0.9);
+    box-shadow:0 2px 5px rgba(20,60,110,0.15);
+    text-decoration:none;
+    color:var(--text-dark);
+    font-size:13.5px;
+    font-weight:600;
+    transition:transform .12s ease;
+  }
+  .link-btn:hover{transform:translateY(-1px);}
+  .link-btn .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, #4e93cf 60%, #1c3f7a);
+  }
+  .link-btn.disabled{opacity:0.55; pointer-events:none;}
+
+  /* fake cmd window easter egg */
+  .cmdwrap{padding:0;}
+  .cmd-screen{
+    background:#0c0c0c;
+    color:#f0f0f0;
+    font-family:"Consolas","Courier New",monospace;
+    font-size:12.5px;
+    padding:12px 14px;
+    min-height:150px;
+  }
+  .cmd-out{white-space:pre-wrap; margin:0 0 6px;}
+  .cmd-row{display:flex; gap:6px; align-items:center;}
+  #cmd{
+    flex:1; background:transparent; border:none; outline:none;
+    color:#f0f0f0; font-family:inherit; font-size:12.5px;
+  }
+
+  /* taskbar */
+  .taskbar{
+    position:fixed; left:0; right:0; bottom:0; height:44px;
+    background:var(--taskbar);
+    box-shadow:0 -1px 0 rgba(255,255,255,0.2) inset, 0 -6px 14px rgba(0,0,0,0.3);
+    display:flex; align-items:center; padding:0 10px; gap:10px;
+    z-index:5;
+  }
+  .start-orb{
+    width:34px; height:34px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #9be36b, #3f9c1c 55%, #1f5c0c 100%);
+    box-shadow:0 0 0 2px rgba(255,255,255,0.5), 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .taskbar .label{color:#eaf3ff; font-size:12px; font-weight:600;}
+  .taskbar .clock{
+    margin-left:auto; color:#eaf3ff; font-size:12px;
+    background:rgba(255,255,255,0.08);
+    padding:6px 10px; border-radius:4px;
+  }
+
+  footer{text-align:center; font-size:11px; color:#dbe9f7; margin-top:10px; text-shadow:0 1px 2px rgba(0,0,0,0.3);}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="desktop">
+
+  <div class="window">
+    <div class="titlebar">
+      <span class="title"><span class="icon"></span>System Properties - Alfie</span>
+      <span class="winbtns"><span class="winbtn min">_</span><span class="winbtn max">&#9633;</span><span class="winbtn close">&times;</span></span>
+    </div>
+    <div class="content about-grid">
+      <div class="avatar-box" id="avatarBox">photo<br>goes<br>here</div>
+      <div class="about-text">
+        <h2>Alfie</h2>
+        <p>UK-based. Self-teaching. Likes Old Tech.</p>
+        <table class="props-table">
+          <tr><td>Computer</td><td>ALFIE-PC</td></tr>
+          <tr><td>Rating</td><td>unrated</td></tr>
+          <tr><td>Status</td><td>self-teaching</td></tr>
+          <tr><td>Location</td><td>UK</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="window">
+    <div class="titlebar">
+      <span class="title"><span class="icon"></span>Photo Gallery</span>
+      <span class="winbtns"><span class="winbtn min">_</span><span class="winbtn max">&#9633;</span><span class="winbtn close">&times;</span></span>
+    </div>
+    <div class="content">
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </div>
+
+  <div class="window">
+    <div class="titlebar">
+      <span class="title"><span class="icon"></span>Links</span>
+      <span class="winbtns"><span class="winbtn min">_</span><span class="winbtn max">&#9633;</span><span class="winbtn close">&times;</span></span>
+    </div>
+    <div class="content">
+      <ul class="link-list">
+        <li><a class="link-btn" href="https://www.tiktok.com/@stxr_1llusion" target="_blank" rel="noopener"><span class="dot"></span> TikTok - @stxr_1llusion</a></li>
+        <li><a class="link-btn" href="https://www.tiktok.com/@ytech03" target="_blank" rel="noopener"><span class="dot"></span> TikTok - @ytech03</a></li>
+        <li><a class="link-btn disabled" href="#"><span class="dot"></span> Discord - coming soon</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="window">
+    <div class="titlebar">
+      <span class="title"><span class="icon"></span>C:\WINDOWS\system32\cmd.exe</span>
+      <span class="winbtns"><span class="winbtn min">_</span><span class="winbtn max">&#9633;</span><span class="winbtn close">&times;</span></span>
+    </div>
+    <div class="content cmdwrap">
+      <div class="cmd-screen">
+        <div class="cmd-out" id="cmdOut">Microsoft Windows [Version 6.0.6000]
+Copyright (c) Alfie Corporation. All rights reserved.
+
+Type a command. Try: help, whoami, dir, ver</div>
+        <div class="cmd-row">
+          <span>C:\Users\Alfie&gt;</span>
+          <input id="cmd" type="text" autocomplete="off" spellcheck="false" aria-label="command input">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Alfie OS &middot; Aero Glass Edition &middot; not affiliated with Microsoft, obviously</footer>
+</div>
+
+<div class="taskbar">
+  <div class="start-orb"></div>
+  <span class="label">start</span>
+  <span class="clock" id="clock"></span>
+</div>
+
+<script>
+  // ---- photo gallery: edit this array to add/remove photos ----
+  // each entry: { src: "photo1.jpg", caption: "caption text" }
+  const photos = [
+    // { src: "photo1.jpg", caption: "me" },
+  ];
+
+  const grid = document.getElementById('galleryGrid');
+  if(photos.length === 0){
+    grid.innerHTML = '<div class="gallery-empty">no photos yet — add entries to the <code>photos</code> array in the script and drop image files next to index.html</div>';
+  } else {
+    photos.forEach(p => {
+      const tile = document.createElement('div');
+      tile.className = 'photo-tile';
+      tile.innerHTML = '<img src="'+p.src+'" alt="'+(p.caption||'photo')+'"><div class="photo-caption">'+(p.caption||'')+'</div>';
+      grid.appendChild(tile);
+    });
+  }
+
+  // ---- clock ----
+  function updateClock(){
+    const now = new Date();
+    let h = now.getHours(), m = now.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    document.getElementById('clock').textContent = h + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  // ---- fake cmd terminal ----
+  const cmdOut = document.getElementById('cmdOut');
+  const cmdInput = document.getElementById('cmd');
+  const responses = {
+    help: "commands: whoami, dir, ver, exit",
+    whoami: "alfie-pc\\alfie",
+    dir: " Directory of C:\\Users\\Alfie\n\n dreams.txt\n tokyo_plan.docx\n firmware_backups\\\n regrets.log",
+    ver: "Alfie OS [Version 1.0.0 Aero Glass Edition]",
+    exit: "The command prompt cannot be exited. There was never a session to begin with."
+  };
+  cmdInput.addEventListener('keydown', (e)=>{
+    if(e.key !== 'Enter') return;
+    const raw = cmdInput.value.trim();
+    const key = raw.toLowerCase();
+    cmdOut.textContent += "\nC:\\Users\\Alfie> " + raw + "\n" + (responses[key] || ("'" + raw + "' is not recognized as an internal or external command."));
+    cmdInput.value = '';
+  });
+</script>
+</body>
+</html>
